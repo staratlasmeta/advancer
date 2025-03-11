@@ -2,7 +2,9 @@
 name = "advancer"
 version = "0.0.1"
 edition = "2021"
-publish = ["star-atlas"]
+authors = ["Brett Etter <brett@staratlas.com>"]
+description = "Helper for advancing over mutable slices"
+license = "Apache-2.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
