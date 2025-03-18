@@ -95,15 +95,17 @@ pub trait Advance<'a>: Length {
 
 // TODO: impl this const when const traits stabilized.
 /// Advances a given slice giving back an array
-pub trait AdvanceArray<'a, const N: usize>: Length {
+pub trait AdvanceArray<'a>: Length {
     /// The element of the array
     type Element;
     /// The output of advancing
-    type AdvanceOut: Deref<Target = [Self::Element; N]>;
+    type AdvanceOut<const N: usize>: Deref<Target = [Self::Element; N]>
+    where
+        Self: 'a;
 
     /// Advances self forward by `N`, returning the advanced over portion.
     /// Panics if not enough data.
-    fn advance_array(&'a mut self) -> Self::AdvanceOut {
+    fn advance_array<const N: usize>(&'a mut self) -> Self::AdvanceOut<N> {
         assert!(N <= self.len());
         // Safety: N is not greater than the length of self
         unsafe { self.advance_array_unchecked() }
@@ -111,7 +113,9 @@ pub trait AdvanceArray<'a, const N: usize>: Length {
 
     /// Advances self forward by `N`, returning the advanced over portion.
     /// Errors if not enough data.
-    fn try_advance_array(&'a mut self) -> Result<Self::AdvanceOut, AdvanceError> {
+    fn try_advance_array<const N: usize>(
+        &'a mut self,
+    ) -> Result<Self::AdvanceOut<N>, AdvanceError> {
         if self.len() < N {
             Err(AdvanceError::NotEnoughData {
                 needed: N,
@@ -128,7 +132,7 @@ pub trait AdvanceArray<'a, const N: usize>: Length {
     ///
     /// # Safety
     /// Caller must guarantee that `N` is not greater than the length of self.
-    unsafe fn advance_array_unchecked(&'a mut self) -> Self::AdvanceOut;
+    unsafe fn advance_array_unchecked<const N: usize>(&'a mut self) -> Self::AdvanceOut<N>;
 }
 
 impl<'a, 'b, T> Advance<'a> for &'b mut [T] {
@@ -144,11 +148,14 @@ impl<'a, 'b, T> Advance<'a> for &'b mut [T] {
     }
 }
 
-impl<'a, 'b, T, const N: usize> AdvanceArray<'a, N> for &'b mut [T] {
+impl<'a, 'b, T> AdvanceArray<'a> for &'b mut [T] {
     type Element = T;
-    type AdvanceOut = &'b mut [T; N];
+    type AdvanceOut<const N: usize>
+        = &'b mut [T; N]
+    where
+        Self: 'a;
 
-    unsafe fn advance_array_unchecked(&'a mut self) -> Self::AdvanceOut {
+    unsafe fn advance_array_unchecked<const N: usize>(&'a mut self) -> Self::AdvanceOut<N> {
         // Safe conversion because returned array will always be same size as value passed in (`N`)
         &mut *(
             // Safety: Same requirements as this function
@@ -170,11 +177,14 @@ impl<'a, 'b, T> Advance<'a> for &'b [T] {
     }
 }
 
-impl<'a, 'b, T, const N: usize> AdvanceArray<'a, N> for &'b [T] {
+impl<'a, 'b, T> AdvanceArray<'a> for &'b [T] {
     type Element = T;
-    type AdvanceOut = &'b [T; N];
+    type AdvanceOut<const N: usize>
+        = &'b [T; N]
+    where
+        Self: 'a;
 
-    unsafe fn advance_array_unchecked(&'a mut self) -> Self::AdvanceOut {
+    unsafe fn advance_array_unchecked<const N: usize>(&'a mut self) -> Self::AdvanceOut<N> {
         // Safe conversion because returned array will always be same size as value passed in (`N`)
         &*(
             // Safety: Same requirements as this function
