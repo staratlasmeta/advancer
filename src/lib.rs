@@ -18,13 +18,13 @@ impl<T> Length for [T] {
     }
 }
 
-impl<'a, T> Length for &'a [T] {
+impl<T> Length for &'_ [T] {
     fn len(&self) -> usize {
         <[T]>::len(self)
     }
 }
 
-impl<'a, T> Length for &'a mut [T] {
+impl<T> Length for &'_ mut [T] {
     fn len(&self) -> usize {
         <[T]>::len(self)
     }
@@ -36,13 +36,13 @@ impl<T, const N: usize> Length for [T; N] {
     }
 }
 
-impl<'a, T, const N: usize> Length for &'a [T; N] {
+impl<T, const N: usize> Length for &'_ [T; N] {
     fn len(&self) -> usize {
         N
     }
 }
 
-impl<'a, T, const N: usize> Length for &'a mut [T; N] {
+impl<T, const N: usize> Length for &'_ mut [T; N] {
     fn len(&self) -> usize {
         N
     }
@@ -64,7 +64,6 @@ pub trait Advance<'a>: Length {
 
     /// Advances self forward by `amount`, returning the advanced over portion.
     /// Panics if not enough data.
-
     fn advance(&'a mut self, amount: usize) -> Self::AdvanceOut {
         assert!(amount <= self.len());
         // Safety: amount is not greater than the length of self
