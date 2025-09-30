@@ -7,5 +7,8 @@ repository = "https://github.com/staratlasmeta/advancer"
 description = "Helper for advancing over mutable slices"
 license = "Apache-2.0"
 
+[features]
+std = []
+
 [dependencies]
-thiserror = "2.0.3"
+thiserror = { version = "2.0.16", default-features = false }

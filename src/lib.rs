@@ -1,5 +1,10 @@
-use std::ops::Deref;
-use std::ptr::{slice_from_raw_parts, slice_from_raw_parts_mut};
+#![no_std]
+
+#[cfg(feature = "std")]
+extern crate std;
+
+use core::ops::Deref;
+use core::ptr::{slice_from_raw_parts, slice_from_raw_parts_mut};
 use thiserror::Error;
 
 /// Length grabbing functions
